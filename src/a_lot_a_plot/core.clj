@@ -11,6 +11,7 @@
             [hiccup.form :as form]
             [a-lot-a-plot.views.layout :as layout]
             [a-lot-a-plot.views.contents :as contents]
+            [a-lot-a-plot.utils.utils :as utils]
    (:gen-class)))
 
 (defonce server (atom nil))
@@ -35,40 +36,18 @@
                          [:name :varchar "NOT NULL"]
                          [:description :varchar "NOT NULL"]
                          [:type :varchar "NOT NULL"]))))
-    
+   
+(defn create
+  [plant]
+  (utils/create plant)
+  (response/redirect "/"))
 
-(defn all []
-  (into [] (sql/query spec ["select * from plant order by id desc"])))
+
 
 (core/defroutes routes
-  (core/GET "/" [] (layout/application "Home" (contents/index)))
+  (core/GET "/" [] (layout/application "Home" (contents/index) (contents/list)))
+  (core/POST "/add-plant" request (create (walk/keywordize-keys (:params request))))
   (route/resources "/"))
-
-;  (core/GET "/" request
-;    (let [params (:params request)])
-;    (h/html
-;       [:html
-;        [:head
-;         [:link {:rel "stylesheet" :href "http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"}]]
-;        [:body
-;         [:div.container
-;          [:form {:action "/add-plant" :method "post" :role "form" :class "row"}
-;           [:fieldset
-;              [:legend "Enter a plant to allot to your plot"]
-;            [:div.row 
-;             [:div.form-group.col-md-5 
-;              [:label {:for "name"} "name"]
-;              [:input.form-control {:id "name" :placeholder "name"}]]]
-;            [:div.row
-;             [:div.form-group.col-md-5
-;              [:label {:for "type"} "type"]
-;              [:input.form-control {:id "type" :placeholder "type"}]]]
-;            [:div.row
-;             [:div.form-group.col-md-5
-;              [:label {:for "description"} "description"]
-;              [:textarea.form-control {:placeholder "description" :rows "4" :cols "30"}]]]
-;            [:div.row
-;             (form/submit-button "submit")]]]]]])))
     
 
 (defn -main []
